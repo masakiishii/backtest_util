@@ -36,7 +36,7 @@ cur = conn.cursor()
 print("start cursor")
 
 # Execute SQL
-cur.execute("""select markettime, openprice, closeprice, ofi, delay, action, limitorderprice, positionprice, position, pnl from public.simulation;""")
+cur.execute("""select markettime, openprice, closeprice, ofi, delay, action, limitorderprice, positionprice, position, pnl from public.simulation order by markettime;""")
 
 # Get the result
 r = cur.fetchall()
