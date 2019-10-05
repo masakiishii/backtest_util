@@ -75,6 +75,18 @@ def calculate_simple_average(org_matrix, new_col_name, window_length, ref_col_in
             all_sum = all_sum + float(org_matrix[index_current][ref_col_index])
         org_matrix[i].append(all_sum / window_length)
 
+
+def filter_data(matrix, ofi_long_index, delay_index, future_price_index):
+    m = []
+    row_length = len(matrix)
+    for i in range(row_length):
+        if i == 0:
+            m.append(matrix[i])
+        else:
+            if float(matrix[i][ofi_long_index]) != 0 and float(matrix[i][delay_index]) < 1 and float(matrix[i][future_price_index]) != 0:
+                m.append(matrix[i])
+    return m
+
 if __name__ == "__main__":
     print("start main")
     from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
@@ -93,6 +105,7 @@ if __name__ == "__main__":
         calculate_weighted_average(org_matrix, "delayweighted5", 5, 7)
         calculate_future_data(org_matrix, "futurecloseprice5sec", 5, 2)
 
+        m = filter_data(org_matrix, 9, 11, 12)
         with open(new_csv_file_name, 'w') as wf:
             writer = csv.writer(wf)
-            writer.writerows(org_matrix)
+            writer.writerows(m)
