@@ -8,8 +8,8 @@ import datetime
 
 from sshtunnel import SSHTunnelForwarder
 
-from_date     = datetime.datetime(2019, 9, 15, 21, 0, 0)
-to_date       = datetime.datetime(2019, 9, 15, 23, 59, 0)
+from_date     = datetime.datetime(2019, 10, 4, 4, 20, 0)
+to_date       = datetime.datetime(2019, 10, 5, 3, 50, 0)
 from_date_str = from_date.strftime('%Y-%m-%d_%H_%M_%S')
 to_date_str   = to_date.strftime('%Y-%m-%d_%H_%M_%S')
 
@@ -42,7 +42,7 @@ cur = conn.cursor()
 print("start cursor")
 
 # Execute SQL
-sql_stmt = """select "timestamp", health, closeprice, midprice, sellvolume, buyvolume, askpressure, bidpressure, askpressuredelta, bidpressuredelta, averagedelay, averagespread from public.stickdata where '{0}' <= timestamp and timestamp <= '{1}' order by timestamp;""".format(from_date, to_date)
+sql_stmt = """select "timestamp", health, closeprice, sellvolume, buyvolume, askpressuredelta, bidpressuredelta, averagedelay, (buyvolume + bidpressuredelta - sellvolume - askpressuredelta) as ofi from public.stickdata where '{0}' <= timestamp and timestamp <= '{1}' order by timestamp;""".format(from_date, to_date)
 
 cur.execute(sql_stmt)
 
@@ -50,7 +50,7 @@ cur.execute(sql_stmt)
 r = cur.fetchall()
 colnames = [col.name for col in cur.description]
 
-file_name = 'stickdata_{0}_{1}.csv'.format(from_date_str, to_date_str)
+file_name = './data/stickdata_{0}_{1}.csv'.format(from_date_str, to_date_str)
 f = open(file_name, 'w')
 writer = csv.writer(f, lineterminator='\n')
 writer.writerow(colnames)
