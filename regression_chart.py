@@ -23,17 +23,22 @@ if __name__ == "__main__":
     else:
         data = pd.read_csv(new_csv_file_name)
         data.describe()
-        x = data['ofidiff'].values
-        y = data['pl'].values
+
+        x_t = data['ofidiff'].values
+        y_t = data['pl'].values
+        x = (x_t - x_t.mean()) / x_t.std()
+        y = (y_t - y_t.mean()) / y_t.std()
+
         plt.scatter(x, y, alpha = 0.3)
         plt.ylabel('pl')
         plt.xlabel('ofidiff')
-
+        plt.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
+        plt.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
         x2 = [[xs] for xs in x]
         clf = linear_model.LinearRegression()
         clf.fit(x2, y)
         plt.plot(x2, clf.predict(x2))
-        plt.annotate("y=" + str(clf.coef_) + "*x + " + str(clf.intercept_), xy = (0, 100), size = 10)
+        plt.annotate("y=" + str(clf.coef_) + "*x + " + str(clf.intercept_), xy = (0, 0.5), size = 10)
         plt.annotate("R2=" + str(clf.score(x2, y)), xy = (0, 0), size = 10)
         mng = plt.get_current_fig_manager()
         mng.window.showMaximized()
