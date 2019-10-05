@@ -41,8 +41,19 @@ conn = psycopg2.connect(
 cur = conn.cursor()
 print("start cursor")
 
+
 # Execute SQL
 sql_stmt = """select "timestamp", health, closeprice, sellvolume, buyvolume, askpressuredelta, bidpressuredelta, averagedelay, (buyvolume + bidpressuredelta - sellvolume - askpressuredelta) as ofi from public.stickdata where '{0}' <= timestamp and timestamp <= '{1}' order by timestamp;""".format(from_date, to_date)
+
+# 0: timestamp
+# 1: health
+# 2: closeprice
+# 3: sellvolume
+# 4: buyvolume
+# 5: askpressuredelta
+# 6: bidpressuredelta
+# 7: averagedelay
+# 8: oif
 
 cur.execute(sql_stmt)
 
