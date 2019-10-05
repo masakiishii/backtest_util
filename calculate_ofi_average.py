@@ -87,6 +87,28 @@ def filter_data(matrix, ofi_long_index, delay_index, future_price_index):
                 m.append(matrix[i])
     return m
 
+def calculate_pl(matrix, new_col_name, ofi_long_index, ofi_short_index, current_price_index, future_price_index):
+    matrix[0].append(new_col_name)
+    row_length = len(matrix)
+    for i in range(row_length):
+        if i == 0:
+            continue
+        m = matrix[i]
+        ofi_long_value = float(m[ofi_long_index])
+        ofi_short_value = float(m[ofi_short_index])
+        current_price = int(m[current_price_index])
+        future_price = int(m[future_price_index])
+        m.append(future_price - current_price)
+
+def calculate_index(matrix, new_col_name, ofi_long_index, ofi_short_index):
+    matrix[0].append(new_col_name)
+    row_length = len(matrix)
+    for i in range(row_length):
+        if i == 0:
+            continue
+        m = matrix[i]
+        m.append(float(m[ofi_short_index]) - float(m[ofi_long_index]))
+
 if __name__ == "__main__":
     print("start main")
     from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
@@ -97,15 +119,30 @@ if __name__ == "__main__":
     if os.path.exists(new_csv_file_name):
         os.remove(new_csv_file_name)
 
+    ## Parameter
+    ofi_long_term = 30
+    ofi_short_term = 5
+    delay_term = 5
+    future_close_price_term = 5
+
+    # ref index
+    ofi_ref_column_index = 8
+    delay_column_index = 7
+    close_price_index = 2
+    ##
+
     with open(csv_file_name) as f:
         reader = csv.reader(f)
         org_matrix = [row for row in reader]
-        calculate_simple_average(org_matrix, "ofilong50", 50, 8)
-        calculate_simple_average(org_matrix, "ofishort5", 5, 8)
-        calculate_weighted_average(org_matrix, "delayweighted5", 5, 7)
-        calculate_future_data(org_matrix, "futurecloseprice5sec", 5, 2)
-
+        # calculate_simple_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
+        # calculate_simple_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
+        calculate_weighted_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
+        calculate_weighted_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
+        calculate_weighted_average(org_matrix, "delayweighted" + str(delay_term), delay_term, delay_column_index)
+        calculate_future_data(org_matrix, "futurecloseprice" + str(future_close_price_term), future_close_price_term, close_price_index)
         m = filter_data(org_matrix, 9, 11, 12)
+        calculate_index(m, "ofidiff", 9, 10)
+        calculate_pl(m, "pl", 9, 10, 2, 12)
         with open(new_csv_file_name, 'w') as wf:
             writer = csv.writer(wf)
             writer.writerows(m)
