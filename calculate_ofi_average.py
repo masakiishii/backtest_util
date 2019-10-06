@@ -135,8 +135,8 @@ if __name__ == "__main__":
         reader = csv.reader(f)
         org_matrix = [row for row in reader]
         # calculate_simple_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
-        # calculate_simple_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
         calculate_weighted_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
+        #calculate_simple_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
         calculate_weighted_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
         calculate_weighted_average(org_matrix, "delayweighted" + str(delay_term), delay_term, delay_column_index)
         calculate_future_data(org_matrix, "futurecloseprice" + str(future_close_price_term), future_close_price_term, close_price_index)

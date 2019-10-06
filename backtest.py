@@ -36,7 +36,7 @@ cur = conn.cursor()
 print("start cursor")
 
 # Execute SQL
-cur.execute("""select markettime, openprice, closeprice, ofientry, oficlear, volentry, volclear, delayentry, delayclear, action, limitorderprice, limitorderpos, positionprice, position, pnl from public.simulation order by markettime;""")
+cur.execute("""select markettime, openprice, closeprice, ofilong, ofishort, volentry, volclear, delay, action, limitorderprice, limitorderpos, positionprice, position, pnl from public.simulation order by markettime;""")
 
 # Get the result
 r = cur.fetchall()
@@ -44,30 +44,28 @@ r = cur.fetchall()
 # 0:markettime
 # 1:openprice
 # 2:closeprice
-# 3:ofientry
-# 4:oficlear
+# 3:ofilong
+# 4:ofishort
 # 5:volentry
 # 6:volclear
-# 7:delayentry
-# 8:delayclear
-# 9:action
-#10:limitorderprice
-#11:limitorderpos
-#12:positionprice
-#13:position
-#14:pnl
+# 7:delay
+# 8:action
+# 9:limitorderprice
+#10:limitorderpos
+#11:positionprice
+#12:position
+#13:pnl
 
 x = list(map(lambda d: d[0], r))
 
 y_closeprice = list(map(lambda d: d[2], r))
-y_ofi_entry = list(map(lambda d: d[3], r))
-y_ofi_clear = list(map(lambda d: d[4], r))
+y_ofi_long = list(map(lambda d: d[3], r))
+y_ofi_short = list(map(lambda d: d[4], r))
 y_vol_entry = list(map(lambda d: d[5], r))
 y_vol_clear = list(map(lambda d: d[6], r))
-y_delay_entry = list(map(lambda d: d[7], r))
-y_delay_clear = list(map(lambda d: d[8], r))
-y_position = list(map(lambda d: d[13], r))
-y_pnl = list(map(lambda d: d[14], r))
+y_delay = list(map(lambda d: d[7], r))
+y_position = list(map(lambda d: d[12], r))
+y_pnl = list(map(lambda d: d[13], r))
 
 ax1 = plt.subplot(6, 1, 1)
 ax1.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
@@ -78,11 +76,11 @@ plt.legend()
 ax2 = plt.subplot(6, 1, 2, sharex=ax1)
 ax2.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
 ax2.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
-plt.plot(x, y_ofi_entry, label="ofi-entry", linewidth=0.5)
-plt.plot(x, y_ofi_clear, label="ofi-clear", linewidth=0.5)
+plt.plot(x, y_ofi_long, label="ofi-long", linewidth=0.5)
+plt.plot(x, y_ofi_short, label="ofi-short", linewidth=0.5)
 plt.legend()
-ax2.fill_between(x, y_ofi_entry, 0, facecolor='skyblue', alpha = 0.3)
-ax2.fill_between(x, y_ofi_clear, 0, facecolor='springgreen', alpha = 0.3)
+ax2.fill_between(x, y_ofi_long, 0, facecolor='skyblue', alpha = 0.3)
+ax2.fill_between(x, y_ofi_short, 0, facecolor='springgreen', alpha = 0.3)
 
 ax3 = plt.subplot(6, 1, 3, sharex=ax1)
 ax3.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
@@ -96,11 +94,9 @@ ax3.fill_between(x, y_vol_clear, 0, facecolor='springgreen', alpha = 0.3)
 ax4 = plt.subplot(6, 1, 4, sharex=ax1)
 ax4.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
 ax4.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
-plt.plot(x, y_delay_entry, label="delay-entry", linewidth=0.5)
-plt.plot(x, y_delay_clear, label="delay-clear", linewidth=0.5)
+plt.plot(x, y_delay, label="delay", linewidth=0.5)
 plt.legend()
-ax4.fill_between(x, y_delay_entry, 0, facecolor='skyblue', alpha = 0.3)
-ax4.fill_between(x, y_delay_clear, 0, facecolor='springgreen', alpha = 0.3)
+ax4.fill_between(x, y_delay, 0, facecolor='skyblue', alpha = 0.3)
 
 ax5 = plt.subplot(6, 1, 5, sharex=ax1)
 ax5.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
