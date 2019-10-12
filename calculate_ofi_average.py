@@ -109,10 +109,27 @@ def calculate_index(matrix, new_col_name, ofi_long_index, ofi_short_index):
         m = matrix[i]
         m.append(float(m[ofi_short_index]) - float(m[ofi_long_index]))
 
+def calculate_ema(org_matrix, new_col_name, window_length, ref_col_index):
+    org_matrix[0].append(new_col_name)
+    row_length = len(org_matrix)
+    for i in range(row_length):
+        if i == 0:
+            continue
+        j = i - window_length + 1
+        if j <= 0:
+            org_matrix[i].append(0)
+            continue
+        all_sum = 0
+        for k in range(window_length):
+            index_current = j + k
+            all_sum = all_sum + float(org_matrix[index_current][ref_col_index])
+        org_matrix[i].append((all_sum + float(org_matrix[i][ref_col_index])) / (window_length + 1))
+
+
 if __name__ == "__main__":
     print("start main")
-    from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
-    to_date = datetime.datetime(2019, 10, 5, 3, 50, 0)
+    from_date = datetime.datetime(2019, 10, 11, 8, 00, 0)
+    to_date = datetime.datetime(2019, 10, 11, 21, 30, 0)
     csv_file_name = get_csv_filename(from_date, to_date)
     new_csv_file_name = get_new_csv_filename(from_date, to_date)
 
@@ -121,9 +138,9 @@ if __name__ == "__main__":
 
     ## Parameter
     ofi_long_term = 30
-    ofi_short_term = 5
+    ofi_short_term = 3
     delay_term = 5
-    future_close_price_term = 5
+    future_close_price_term = 3
 
     # ref index
     ofi_ref_column_index = 8
@@ -135,9 +152,11 @@ if __name__ == "__main__":
         reader = csv.reader(f)
         org_matrix = [row for row in reader]
         # calculate_simple_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
-        calculate_weighted_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
+        #calculate_weighted_average(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
+        calculate_ema(org_matrix, "ofilong" + str(ofi_long_term), ofi_long_term, ofi_ref_column_index)
         #calculate_simple_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
-        calculate_weighted_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
+        #calculate_weighted_average(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
+        calculate_ema(org_matrix, "ofishort" + str(ofi_short_term), ofi_short_term, ofi_ref_column_index)
         calculate_weighted_average(org_matrix, "delayweighted" + str(delay_term), delay_term, delay_column_index)
         calculate_future_data(org_matrix, "futurecloseprice" + str(future_close_price_term), future_close_price_term, close_price_index)
         m = filter_data(org_matrix, 9, 11, 12)
