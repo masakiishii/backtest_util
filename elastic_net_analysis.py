@@ -26,6 +26,16 @@ def get_output_csv_filename(from_date, to_date):
     to_date_str   = to_date.strftime('%Y-%m-%d_%H_%M_%S')
     return "./data/stickdata_elasticnet_targetdata_{0}_{1}.csv".format(from_date_str, to_date_str)
 
+def outlier_s(df, s):
+    col = df.pl
+    average = np.mean(col)
+    sd = np.std(col)
+    outlier_min = average - (sd) * s
+    outlier_max = average + (sd) * s
+    col[col < outlier_min] = np.nan
+    col[col > outlier_max] = np.nan
+    return df
+
 if __name__ == "__main__":
     print("start")
     from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
@@ -39,8 +49,10 @@ if __name__ == "__main__":
         os.remove(output_filepath)
     df_none.to_csv(output_filepath)
 
-    X = df_none.drop('pl', axis=1)
-    y = df_none.pl
+    df_filter = outlier_s(df_none, 7)
+    dn = df_filter.dropna(how='any', axis=0)
+    X = dn.drop('pl', axis=1)
+    y = dn.pl
 
     print('[X-header]')
     print(X.columns)
@@ -75,7 +87,7 @@ if __name__ == "__main__":
     print('  R^2 on test     : %.5f' % gscv.score(X_test, y_test))
 
 
-    isStd = False
+    isStd = True
 
     if isStd:
         y_test_pred_std = (y_test_pred - y_test_pred.mean()) / y_test_pred.std()

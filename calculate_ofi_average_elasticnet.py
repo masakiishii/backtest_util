@@ -83,7 +83,7 @@ if __name__ == "__main__":
         os.remove(new_csv_file_name)
 
     ## Parameter
-    ofi_long_term = 30
+    ofi_long_term = 10
     ofi_short_term = 2
     delay_term = 5
     future_close_price_term = 5
