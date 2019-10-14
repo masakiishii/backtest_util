@@ -75,25 +75,39 @@ if __name__ == "__main__":
     print('  R^2 on test     : %.5f' % gscv.score(X_test, y_test))
 
 
-    y_test_pred_std = (y_test_pred - y_test_pred.mean()) / y_test_pred.std()
-    y_test_std = (y_test - y_test.mean()) / y_test.std()
+    isStd = False
 
-    #plt.scatter(y_test_pred, y_test, alpha = 0.3)
-    plt.scatter(y_test_pred_std, y_test_std, alpha = 0.3)
-    plt.xlabel('y_test_pred_std')
-    plt.ylabel('y_test_std')
-    plt.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
-    plt.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
-    #x2 = [[xs] for xs in y_test_pred]
-    x2 = [[xs] for xs in y_test_pred_std]
-    clf = linear_model.LinearRegression()
-    #clf.fit(x2, y_test)
-    clf.fit(x2, y_test_std)
-    y2 = clf.coef_ * x2 + clf.intercept_
-    plt.plot(x2, y2, color='black', alpha=0.3)
-    plt.annotate("y=" + str(clf.coef_) + "*x + " + str(clf.intercept_), xy = (0, 1.0), size = 10)
-    #plt.annotate("R2=" + str(clf.score(x2, y_test)), xy = (0, 0), size = 10)
-    plt.annotate("R2=" + str(clf.score(x2, y_test_std)), xy = (0, 0), size = 10)
-    mng = plt.get_current_fig_manager()
-    mng.window.showMaximized()
-    plt.show()
+    if isStd:
+        y_test_pred_std = (y_test_pred - y_test_pred.mean()) / y_test_pred.std()
+        y_test_std = (y_test - y_test.mean()) / y_test.std()
+        plt.scatter(y_test_pred_std, y_test_std, alpha = 0.3)
+        plt.xlabel('y_test_pred_std')
+        plt.ylabel('y_test_std')
+        plt.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
+        plt.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
+        x2 = [[xs] for xs in y_test_pred_std]
+        clf = linear_model.LinearRegression()
+        clf.fit(x2, y_test_std)
+        y2 = clf.coef_ * x2 + clf.intercept_
+        plt.plot(x2, y2, color='black', alpha=0.3)
+        plt.annotate("y=" + str(clf.coef_) + "*x + " + str(clf.intercept_), xy = (0, 1.0), size = 10)
+        plt.annotate("R2=" + str(clf.score(x2, y_test_std)), xy = (0, 0), size = 10)
+        mng = plt.get_current_fig_manager()
+        mng.window.showMaximized()
+        plt.show()
+    else:
+        plt.scatter(y_test_pred, y_test, alpha = 0.3)
+        plt.xlabel('y_test_pred')
+        plt.ylabel('y_test')
+        plt.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
+        plt.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
+        x2 = [[xs] for xs in y_test_pred]
+        clf = linear_model.LinearRegression()
+        clf.fit(x2, y_test)
+        y2 = clf.coef_ * x2 + clf.intercept_
+        plt.plot(x2, y2, color='black', alpha=0.3)
+        plt.annotate("y=" + str(clf.coef_) + "*x + " + str(clf.intercept_), xy = (0, 100), size = 10)
+        plt.annotate("R2=" + str(clf.score(x2, y_test)), xy = (0, 0), size = 10)
+        mng = plt.get_current_fig_manager()
+        mng.window.showMaximized()
+        plt.show()
