@@ -74,8 +74,8 @@ def calculate_ema(org_matrix, new_col_name, window_length, ref_col_index):
 
 if __name__ == "__main__":
     print("start main")
-    from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
-    to_date = datetime.datetime(2019, 10, 5, 3, 50, 0)
+    from_date = datetime.datetime(2019, 10, 13, 4, 20, 0)
+    to_date = datetime.datetime(2019, 10, 14, 3, 50, 0)
     csv_file_name = get_csv_filename(from_date, to_date)
     new_csv_file_name = get_new_csv_filename(from_date, to_date)
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         os.remove(new_csv_file_name)
 
     ## Parameter
-    ofi_long_term = 10
+    ofi_long_term = 30
     ofi_short_term = 2
     delay_term = 5
     future_close_price_term = 5

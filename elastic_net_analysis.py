@@ -8,8 +8,11 @@ from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
+from sklearn import linear_model
 
 import warnings
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
@@ -20,8 +23,8 @@ def get_new_csv_filename(from_date, to_date):
 
 if __name__ == "__main__":
     print("start")
-    from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
-    to_date = datetime.datetime(2019, 10, 5, 3, 50, 0)
+    from_date = datetime.datetime(2019, 10, 13, 4, 20, 0)
+    to_date = datetime.datetime(2019, 10, 14, 3, 50, 0)
     new_csv_file_name = get_new_csv_filename(from_date, to_date)
 
     df_none = pd.read_csv(new_csv_file_name, usecols=lambda x: x not in ['timestamp', 'closeprice', 'sellvolume', 'buyvolume', 'askpressuredelta', 'bidpressuredelta', 'averagedelay', 'ofivolume', 'ofipressuredelta', 'emacloseprice', 'futurecloseprice'])
@@ -32,15 +35,16 @@ if __name__ == "__main__":
     print('[X-header]')
     print(X.columns)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
 
     standardizer = StandardScaler()
 
     # elasticnet
+    #reg = ElasticNet(fit_intercept=False)
     reg = ElasticNet()
     gscv = GridSearchCV(reg,
-                        param_grid={'alpha': [1.0, 0.5, 0.1]},
-                        cv=2)
+                        param_grid={'alpha': [0.00001, 0.0001, 0.001, 0.01, 0.1, 1], 'l1_ratio' : [0.001, 0.01, 0.1, 1]},
+                        cv=10)
 
     standardizer.fit(X_train)
     X_train_std = standardizer.transform(X_train)
@@ -57,3 +61,21 @@ if __name__ == "__main__":
     print('  R^2 on train    : %.5f' % gscv.score(X_train_std, y_train))
     print('  R^2 on test     : %.5f' % gscv.score(X_test_std, y_test))
 
+    # sns.regplot(y_test, y_test_pred)
+    # sns.show()
+
+    plt.scatter(y_test_pred, y_test, alpha = 0.3)
+    plt.xlabel('y_test_pred')
+    plt.ylabel('y_test')
+    plt.grid(which='major', axis='x', color='blue', alpha=0.3, linestyle='--')
+    plt.grid(which='major', axis='y', color='blue', alpha=0.3, linestyle='--')
+    x2 = [[xs] for xs in y_test_pred]
+    clf = linear_model.LinearRegression()
+    clf.fit(x2, y_test)
+    y2 = clf.coef_ * x2 + clf.intercept_
+    plt.plot(x2, y2, color='black', alpha=0.3)
+    plt.annotate("y=" + str(clf.coef_) + "*x + " + str(clf.intercept_), xy = (0, 100), size = 10)
+    plt.annotate("R2=" + str(clf.score(x2, y_test)), xy = (0, 0), size = 10)
+    mng = plt.get_current_fig_manager()
+    mng.window.showMaximized()
+    plt.show()
