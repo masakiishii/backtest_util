@@ -3,12 +3,15 @@ import datetime
 import os
 import pandas as pd
 import numpy as np
+import json
+import psycopg2
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn import linear_model
+from sshtunnel import SSHTunnelForwarder
 
 import warnings
 import seaborn as sns
@@ -36,10 +39,44 @@ def outlier_s(df, s):
     col[col > outlier_max] = np.nan
     return df
 
+def insert_parameter(coef, intercept):
+    with open('./configuration.json', 'r') as f:
+        df = json.load(f)
+
+    tunnel = SSHTunnelForwarder(
+        (df['ssh']['ip'], 22),
+        ssh_username=df['ssh']['username'],
+        ssh_password=df['ssh']['password'],
+        remote_bind_address=(df['ssh']['remote_bind_address'], 5432),
+        local_bind_address=(df['ssh']['local_bind_address'],6432), # could be any available port
+        )
+    # Start the tunnel
+    tunnel.start()
+    print("start tunnel")
+
+    # Create a database connection
+    conn = psycopg2.connect(
+        database=df['db']['dbname'],
+        user=df['db']['user'],
+        password=df['db']['password'],
+        host=tunnel.local_bind_host,
+        port=tunnel.local_bind_port,
+        )
+
+        # Get a database cursor
+    cur = conn.cursor()
+    print("start cursor")
+    dt = datetime.datetime.now()
+    cur.execute("INSERT INTO public.elasticnetparam VALUES (%s,%s,%s,%s,%s,%s,%s)", (dt,coef[0],coef[1],coef[2],coef[3],coef[4],intercept))
+    conn.commit()
+    cur.close()
+    conn.close()
+    tunnel.stop()
+
 if __name__ == "__main__":
     print("start")
-    from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
-    to_date = datetime.datetime(2019, 10, 5, 3, 50, 0)
+    from_date = datetime.datetime(2019, 10, 19, 4, 20, 0)
+    to_date = datetime.datetime(2019, 10, 20, 3, 55, 0)
     new_csv_file_name = get_new_csv_filename(from_date, to_date)
 
     df_none = pd.read_csv(new_csv_file_name, usecols=lambda x: x not in ['timestamp', 'closeprice', 'sellvolume', 'buyvolume', 'askpressuredelta', 'bidpressuredelta', 'averagedelay', 'ofivolume', 'ofipressuredelta', 'emacloseprice', 'futurecloseprice'])
@@ -49,7 +86,7 @@ if __name__ == "__main__":
         os.remove(output_filepath)
     df_none.to_csv(output_filepath)
 
-    df_filter = outlier_s(df_none, 7)
+    df_filter = outlier_s(df_none, 10)
     dn = df_filter.dropna(how='any', axis=0)
     X = dn.drop('pl', axis=1)
     y = dn.pl
@@ -57,7 +94,7 @@ if __name__ == "__main__":
     print('[X-header]')
     print(X.columns)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.8)
 
     #standardizer = StandardScaler()
 
@@ -81,11 +118,17 @@ if __name__ == "__main__":
     print('[Model Evaluation]')
     print('  Intercept       :', best.intercept_)
     print('  Coefficient     :', best.coef_)
+    print(best.coef_[0])
+    print(best.coef_[1])
+    print(best.coef_[2])
+    print(best.coef_[3])
+    print(best.coef_[4])
+    insert_parameter(best.coef_, best.intercept_)
+    
     # print('  R^2 on train    : %.5f' % gscv.score(X_train_std, y_train))
     # print('  R^2 on test     : %.5f' % gscv.score(X_test_std, y_test))
     print('  R^2 on train    : %.5f' % gscv.score(X_train, y_train))
     print('  R^2 on test     : %.5f' % gscv.score(X_test, y_test))
-
 
     isStd = True
 

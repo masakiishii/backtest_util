@@ -14,8 +14,8 @@ def get_new_csv_filename(from_date, to_date):
 
 if __name__ == "__main__":
     print("start main")
-    from_date = datetime.datetime(2019, 10, 4, 4, 20, 0)
-    to_date = datetime.datetime(2019, 10, 5, 3, 50, 0)
+    from_date = datetime.datetime(2019, 10, 19, 4, 20, 0)
+    to_date = datetime.datetime(2019, 10, 19, 23, 59, 0)
     new_csv_file_name = get_new_csv_filename(from_date, to_date)
 
     if not os.path.exists(new_csv_file_name):

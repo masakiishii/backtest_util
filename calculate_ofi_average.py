@@ -128,8 +128,8 @@ def calculate_ema(org_matrix, new_col_name, window_length, ref_col_index):
 
 if __name__ == "__main__":
     print("start main")
-    from_date = datetime.datetime(2019, 10, 11, 8, 00, 0)
-    to_date = datetime.datetime(2019, 10, 11, 21, 30, 0)
+    from_date = datetime.datetime(2019, 10, 19, 4, 20, 0)
+    to_date = datetime.datetime(2019, 10, 19, 23, 59, 0)
     csv_file_name = get_csv_filename(from_date, to_date)
     new_csv_file_name = get_new_csv_filename(from_date, to_date)
 
